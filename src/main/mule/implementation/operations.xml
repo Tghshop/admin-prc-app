@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+	<sub-flow name="salesforce-operations-sub-flow" doc:id="3af3bb39-9f41-4566-82e7-3d813cd57023" >
+		<json-logger:logger doc:name="log-salesforce-operations-sub-flow-start" doc:id="04d7bee2-c254-4972-a71d-a3701898bfbc" config-ref="json-logger-config" message='#["-----" ++ upper("log-salesforce-operations-sub-flow-start") ++ "-----"]'/>
+		<try doc:name="Try" doc:id="c4931097-872b-4cfe-91ac-7b8da36dbd7a">
+			<http:request method="#[vars.req.method]" doc:name="request-to-salesforce" doc:id="a2034433-96b1-4353-a3aa-dd719b9c07b3" config-ref="salesforce-sys-api-requester" path="#[vars.req.path]" />
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8b717d56-09bf-4397-afa6-b2da3279736d">
+					<json-logger:logger doc:name="log-salesforce-operations-sub-flow-error" doc:id="21601e17-0ac2-4b01-ae17-9630252987a8" config-ref="json-logger-config" message='#["-----" ++ upper("log-salesforce-operations-sub-flow-error") ++ "-----"]'>
+							<json-logger:content><![CDATA[#[output application/json
+---
+{
+	"errorCode": 500,
+	"errorMessage": error.description,
+	"errorPayloadContent": error.errorMessage.payload,
+	"correlationId": correlationId,
+	"status":"ERROR"
+}]]]></json-logger:content>
+						</json-logger:logger>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<json-logger:logger doc:name="log-salesforce-operations-sub-flow-end" doc:id="0e3eaefb-f73b-4d7a-81b5-64a7b7a3de3b" config-ref="json-logger-config" message='#["-----" ++ upper("log-salesforce-operations-sub-flow-end") ++ "-----"]' tracePoint="END"/>
+	</sub-flow>
+	<sub-flow name="mail-sub-flow" doc:id="41224e3b-dc44-40af-9f76-48a273f1106e" >
+		<json-logger:logger doc:name="log-mail-sub-flow-start" doc:id="115b0ede-3b13-4b95-88e7-3296e8a5bd73" config-ref="json-logger-config" message='#["-----" ++ upper("log-mail-sub-flow-start") ++ "-----"]' />
+		<try doc:name="Try" doc:id="e9335982-0f9e-43b7-931c-f7b786f59f20">
+			<http:request method="POST" doc:name="request-to-mail" doc:id="93911923-5018-4528-8688-60f803217dec" config-ref="mail-sys-api-requester" path="/send-mail" />
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="58150207-07ad-498c-b94a-0af1d20dea79" type="ANY">
+					<json-logger:logger doc:name="log-snowflake-operations-sub-flow-error" doc:id="d33cb7cb-c7b9-40e6-b438-b2f3dbfbe03f" config-ref="json-logger-config" message='#["-----" ++ upper("log-snowflake-operations-sub-flow-error") ++ "-----"]'>
+						<json-logger:content><![CDATA[#[output application/json
+---
+{
+	"errorCode": 500,
+	"errorMessage": error.description,
+	"errorPayloadContent": error.errorMessage.payload,
+	"correlationId": correlationId,
+	"status":"ERROR"
+}]]]></json-logger:content>
+					</json-logger:logger>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<json-logger:logger doc:name="log-mail-sub-flow-end" doc:id="99378cba-5c16-4e57-9fd2-6d67d98f48df" config-ref="json-logger-config" message='#["-----" ++ upper("log-mail-sub-flow-end") ++ "-----"]' tracePoint="END"/>
+	</sub-flow>
+</mule>

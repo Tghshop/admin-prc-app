@@ -1,0 +1,7 @@
+%dw 2.0
+
+type auto_3af3bb39_9f41_4566_82e7_3d813cd57023_Input_Variables_req = {|
+  method: String, 
+  path: String
+|}
+

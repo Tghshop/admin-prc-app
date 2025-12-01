@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+
+	<sub-flow name="utilsSub_Flow" doc:id="32aa5d71-6ab1-4612-af5e-70f83f5ef70b" >
+		<json-logger:logger doc:id="e6b025d1-213f-4ac1-9c60-9dd582cbfc9c" config-ref="json-logger-config" message='#["-----" ++ upper("log-set-request-params-sub-flow-start") ++ "-----"]' doc:name="log-set-request-params-sub-flow-start" />
+		<ee:transform doc:name="Transform Message" doc:id="657d3fde-9846-47f0-babc-9801237dc5d9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	payload: payload,
+    headers: (attributes.headers as Object default {}) - "client_secret",
+    queryParams:attributes.queryParams as Object default {},
+    uriParams:attributes.uriParams as Object default {}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="log-set-request-params-sub-flow-end" doc:id="50117384-f8c4-405d-828b-ab5b20f8b890" message='#["-----" ++ upper("log-set-request-params-sub-flow-end") ++ "-----"]' />
+		<json-logger:logger doc:id="54064f7f-fc2e-494d-bd73-00c51ed0c9e3" config-ref="json-logger-config" message='#["-----" ++ upper("log-set-request-params-sub-flow-start") ++ "-----"]' doc:name="log-set-request-params-sub-flow-start1" />
+	</sub-flow>
+</mule>

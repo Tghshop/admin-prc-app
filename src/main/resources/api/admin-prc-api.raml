@@ -1,0 +1,99 @@
+#%RAML 1.0
+title: admin-prc-api
+version: v1
+documentation:
+  - title: Admin Proc API
+    content: API responsible for admin related events.
+protocols:
+  - HTTPS
+
+
+traits:
+  error-response: !include exchange_modules/635159a8-be44-4ed5-a886-bb461c9661c6/trait-error-response/1.0.0/trait-error-response.raml
+
+
+/api:
+  /v1:
+    /transit:
+      is: [error-response]
+      get:
+        description: Fetches transit  details.
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include examples/getProduct.json
+      post:
+        description: Creates a transit record via Delivery Mgmt Proc API and updates order status to In Transit.
+        body:
+          application/json:
+            example: !include examples/transitPostRequest.json
+        responses:
+          201:
+            body:
+              application/json:
+                example: !include examples/transitPostResponse.json
+      /{transitId}:
+        uriParameters:
+          transitId:
+            required: true
+            type: string
+        patch:
+          description: Update transit status.
+          body:
+            application/json:
+              example: !include examples/productPutRequest.json
+          responses:
+            200:
+              body:
+                application/json:
+                  example: !include examples/productPutResponse.json
+    /inventory:
+      is: [error-response]
+      get:
+        description: Fetches inventory stock details via Inventory Process API.
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include examples/getAllProducts.json
+      post:
+        description: Add product in inventory.
+        body:
+          application/json:
+            example: !include examples/productPostRequest.json
+        responses:
+          200:
+            body:
+              application/json:
+                example: !include examples/postProductResponse.json
+
+      /{productId}:
+        uriParameters:
+          productId:
+            required: true
+            type: string
+        get:
+          description: Fetches inventory stock details via Inventory Process API.
+          responses:
+            200:
+              body:
+                application/json:
+                  example: !include examples/getProduct.json
+        put:
+          description: Update product in inventory.
+          body:
+            application/json:
+              example: !include examples/productPutRequest.json
+          responses:
+            200:
+              body:
+                application/json:
+                  example: !include examples/productPutResponse.json
+        delete:
+          description: Deletes a product from Salesforce/Inventory via Inventory Process API.
+          responses:
+            200:
+              body:
+                application/json:
+                  example: !include examples/productDeleteResponse.json

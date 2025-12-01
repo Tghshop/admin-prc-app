@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<munit:config name="admin-prc-api-test-suite.xml" />
+	<munit:test name="admin-prc-api-test-suite-admin-prc-api-main-global-error-handler-test" doc:id="c3259eee-f3b5-4423-b6d9-9cee726c999d" description="Test" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mocking Transform" doc:id="9923f53b-9c13-4207-8e60-4cdb556d5ce1" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="admin-prc-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<try doc:name="Try" doc:id="f614f94a-2737-451b-9b15-6ab68f43751a" >
+				<flow-ref doc:name="admin-prc-api-main" doc:id="4aaec7d6-333c-49cb-aba6-74ceecbb20c1" name="admin-prc-api-main" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4ad64547-16e6-4e01-897f-2f4283bfe45f" type="ANY">
+						<logger level="INFO" doc:name="Logger" doc:id="59bc51f9-8526-418e-9f7d-84cb4cf4cb8b" message="mule" />
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="8b2ffa59-172c-43b3-a5ee-b6e4d26f1244" actual="#[payload.status]" expected="ERROR" />
+		</munit:validation>
+	</munit:test>
+
+</mule>

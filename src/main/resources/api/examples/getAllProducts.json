@@ -1,0 +1,16 @@
+[
+  {
+  "productId": "P101",
+  "name": "Samsung Galaxy S24 Ultra",
+  "description": "6.8-inch display, 12GB RAM, 256GB storage, 200MP camera.",
+  "price": 129999,
+  "stock": 80
+},
+{
+  "productId": "P101",
+  "name": "Samsung Galaxy S24 Ultra",
+  "description": "6.8-inch display, 12GB RAM, 256GB storage, 200MP camera.",
+  "price": 129999,
+  "stock": 80
+}
+]

@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<!-- [STUDIO:"order-assignementFlow"]<flow name="order-assignementFlow" doc:id="f81bce0d-7756-4225-8927-c1947862ff60" >
+		<scheduler doc:name="Scheduler" doc:id="33cc97db-57d3-4d9b-b17d-5dd4913d491a" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="DAYS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<json-logger:logger doc:name='log-scheduler-order-assignment-dp-flow-start' doc:id="8b26dfb6-05c8-4547-8ccd-b5e281f84170" config-ref="json-logger-config" message='#["&#45;&#45;&#45;&#45;-" ++ upper("log-scheduler-order-assignment-dp-flow-start") ++ "&#45;&#45;&#45;&#45;-"&#93;'/>
+		<ee:transform doc:name="Transform Message" doc:id="4f11ae9a-ae92-47d6-8721-f866562a4f7a">
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "GET",
+	"path": "/order"
+}&#93;&#93;></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "GET",
+	"path": "/orders"
+}&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-placed-orders" doc:id="71c5873f-6069-4aff-a484-2f831dae783d" name="salesforce-operations-sub-flow" target="orders"/>
+		<ee:transform doc:name="Transform Message1" doc:id="55023ebf-96e8-44e7-8808-3dc510e154d2">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "GET",
+	"path": "/deliveryPartners"
+}&#93;&#93;></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "GET",
+	"path": "/deliveryPartners"
+}&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-all-deliverypartners" doc:id="34f6e97f-9d7d-47b7-9d83-4222dc50b93d" name="salesforce-operations-sub-flow" target="dps"/>
+		<ee:transform doc:name="Transform Message" doc:id="c0b54326-8bc2-4033-8b76-9add9fb39a5c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var orders=vars.orders filter((item)->item.Order_Status__c=="packaged")
+var dps=vars.dps filter((item)->item.IsActive__c==true)
+&#45;&#45;-
+orders map ((item, index) -> {
+    orderId: item.Order_Id__c,
+    dpname:dps[(index mod sizeOf(dps))&#93;.DP_Name__c,
+    partnerId: dps[(index mod sizeOf(dps))&#93;.DP_Id__c
+})&#93;&#93;></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="assignedpayload" ><![CDATA[%dw 2.0
+output application/json
+var orders=vars.orders filter((item)->item.Order_Status__c=="packaged")
+var dps=vars.dps filter((item)->item.IsActive__c==true)
+&#45;&#45;-
+orders map ((item, index) -> {
+    orderId: item.Order_Id__c,
+    dpname:dps[(index mod sizeOf(dps))&#93;.DP_Name__c,
+    partnerId: dps[(index mod sizeOf(dps))&#93;.DP_Id__c
+})&#93;&#93;></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<parallel-foreach doc:name="Parallel For Each" doc:id="be137dfe-177e-461e-ac6c-4e0ea1fb0dbf" >
+			<scatter-gather doc:name="Scatter-Gather" doc:id="3db571a2-2cb3-42ae-b77c-6967e9c38302" >
+				<route >
+					<json-logger:logger doc:name="Logger1" doc:id="24b67efd-9719-470b-b652-2f6be970de74" config-ref="json-logger-config" message='#["&#45;&#45;&#45;&#45;-" ++ upper("log-scheduler-franchisee-master-customer-flow-start") ++ "&#45;&#45;&#45;&#45;-"&#93;' />
+					<ee:transform doc:name="Transform Message" doc:id="0c79ac3e-bf3a-44e8-8798-f34f926e7a86" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var dp = vars.dps
+&#45;&#45;-
+[
+(dp filter ((item, index) -> item.Partner_Id__c==vars.assignedpayload.partnerId))[0&#93; -"IsActive__c" ++ 
+{
+	IsActive__c:false,
+	Last_Assigned_Time__c:now() as String {format:"yyyy-MM-dd"}
+}
+&#93;&#93;&#93;></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "PUT",
+	"path": "/deliveryPartners/" ++ payload.partnerId as String default ""
+}&#93;&#93;></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<flow-ref doc:name="update-deliverypartner-status" doc:id="be7f1ff1-db3e-48cf-bc4e-3bbfff3c8017" name="salesforce-operations-sub-flow"/>
+					<ee:transform doc:name="email-payload" doc:id="4d019ef0-0bc0-41fb-85bd-b0817aa7df40" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+((vars.dps filter ((item, index) -> item.Partner_Id__c==payload.partnerId)) map ((item, index) -> {
+  "mail": item.email,
+  "subject": "New Order Assigned – Please Check Your Dashboard",
+  "body": "Hello " ++ item.Name__c ++ 
+          " A new order has been assigned to you, Please review and start the delivery process."
+}))[0&#93;
+&#93;&#93;></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="mail" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+((vars.dps filter ((item, index) -> item.Partner_Id__c==payload.partnerId)) map ((item, index) -> {
+  "mail": item.email,
+  "subject": "New Order Assigned – Please Check Your Dashboard",
+  "body": "Hello " ++ item.Name__c ++ 
+          " A new order has been assigned to you, Please review and start the delivery process."
+}))[0&#93;
+&#93;&#93;></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<flow-ref doc:name="send-mail-to-deliverypartner" doc:id="cc74b80f-03c4-4b22-81c0-55d81f0d76ce" name="mail-sub-flow"/>
+				</route>
+				<route >
+					<json-logger:logger doc:name="Logger1" doc:id="c6925af3-9bf5-4147-956d-beaec85c8a1a" config-ref="json-logger-config" message='#["&#45;&#45;&#45;&#45;-" ++ upper("log-scheduler-franchisee-master-customer-flow-start") ++ "&#45;&#45;&#45;&#45;-"&#93;' />
+					<ee:transform doc:name="Transform Message" doc:id="7d668814-5ce6-424f-979e-a1ca8a473430" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+var orders=vars.orders
+var dps=vars.dps
+&#45;&#45;-
+[
+(orders filter ((item, index) -> item.Order_Id__c==vars.assignedpayload.orderId))[0&#93; -"Order_Status__c" - "DeliveryPartner__c"  ++ 
+    {
+    Order_Status__c:"shipped",
+    DeliveryPartner__c: (dps filter ((item, index) -> item.Partner_Id__c==vars.assignedpayload.partnerId))[0&#93;.Id        
+    } 
+&#93;&#93;&#93;></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "PATCH",
+	"path": "/orders/" ++ payload.orderId as String default ""
+}&#93;&#93;></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<flow-ref doc:name="update-order-status" doc:id="fcdd90ba-1928-47cc-83e4-15975f251000" name="salesforce-operations-sub-flow"/>
+					<ee:transform doc:name="Transform Message1" doc:id="dfee2d0c-64e0-4c3a-9206-58dacb710e0a" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"method": "GET",
+	"path": "/customers/" ++ (vars.orders filter ((item, index) -> item.Order_Id__c==payload.orderId))[0&#93;.Customer__c
+}&#93;&#93;></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<flow-ref doc:name="send-mail-to-customer" doc:id="c35c7af2-d81b-408e-8436-981ea3c6cd7f" name="send-mail-to-customer-sub-flow" />
+				</route>
+			</scatter-gather>
+		</parallel-foreach>
+		<json-logger:logger doc:name="log-scheduler-order-assignment-dp-flow-end" doc:id="925eb3f3-24ea-4e5d-99dd-382087d54814" config-ref="json-logger-config" message='#["&#45;&#45;&#45;&#45;-" ++ upper("log-scheduler-order-assignment-dp-flow-end") ++ "&#45;&#45;&#45;&#45;-"&#93;'/>
+	</flow> [STUDIO] -->
+	<flow name="order-assignementFlow1" doc:id="571b8e13-7682-463c-a38f-445581643019" >
+		<scheduler doc:name="Scheduler" doc:id="ba2b2045-e9b3-44ae-8473-b751c96f164d" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="DAYS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<json-logger:logger doc:name="log-scheduler-order-assignment-dp-flow-start" doc:id="de68f3b5-97d2-47fc-8059-598ce0af54bb" config-ref="json-logger-config" message='#["----" ++ upper("log-scheduler-order-assignment-dp-flow-start") ++ "------"]' />
+		<ee:transform doc:name="prepare-get-order-request" doc:id="d8bc9b08-317d-4a0b-a68a-26fa474fdeeb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/orders"
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/orders"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-order-data" doc:id="70bc8d06-4c56-4708-92f4-cd6471458865" name="salesforce-operations-sub-flow" target="orders" />
+		<ee:transform doc:name="prepare-get-deliverypartner-request" doc:id="72761110-b559-404f-b91f-48470fe77f0b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/deliveryPartners"
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/deliveryPartners"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-deliverypartner-data" doc:id="6db807c7-f619-4add-a37a-eb1d3da00193" name="salesforce-operations-sub-flow" target="dps" />
+		<ee:transform doc:name="prepare-order-partner-assignments" doc:id="f865d887-c207-4ae4-bb9a-477945c3bef8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var packagedOrders=vars.orders filter((item)->item.Order_Status__c=="packaged" and item.IsCancelled__c=="false") default []
+var activePartners=vars.dps filter((item)->item.IsActive__c=="true") default []
+---
+if (sizeOf(packagedOrders) == 0 or sizeOf(activePartners) == 0)
+    []
+else
+    packagedOrders map ((item, index) ->
+        {
+            orderId: item.Order_Id__c,
+            deliveryDate: item.Delivery_Date__c,
+            dpname: activePartners[(index mod sizeOf(activePartners))].Name__c,
+            partnerId: activePartners[(index mod sizeOf(activePartners))].Partner_Id__c
+        }
+    )]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="assignedOrders" ><![CDATA[%dw 2.0
+output application/json
+var packagedOrders=vars.orders filter((item)->item.Order_Status__c=="packaged" and item.IsCancelled__c=="false") default []
+var activePartners=vars.dps filter((item)->item.IsActive__c=="true") default []
+---
+if (sizeOf(packagedOrders) == 0 or sizeOf(activePartners) == 0)
+    []
+else
+    packagedOrders map ((item, index) ->
+        {
+            orderId: item.Order_Id__c,
+            deliveryDate: item.Delivery_Date__c,
+            dpname: activePartners[(index mod sizeOf(activePartners))].Name__c,
+            partnerId: activePartners[(index mod sizeOf(activePartners))].Partner_Id__c
+        }
+    )]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="2e708c1b-d68d-4b7e-a369-ca11e7f8a8b3" >
+			<when expression="#[!isEmpty(payload)]">
+				<parallel-foreach doc:name="Parallel For Each" doc:id="7153ff04-e49a-477c-b840-7e707ae25844">
+			<flow-ref doc:name="update-order-and-deliverypartner-status-sub-flow" doc:id="7d7a2c32-5dd8-466d-b1e3-de0db79c68d8" name="update-order-and-deliverypartner-status-sub-flow" />
+		</parallel-foreach>
+			</when>
+			<otherwise >
+				<json-logger:logger doc:name="log-order-assignment-bypass" doc:id="e9bb696c-d51e-4f13-a6b7-7236510ef05b" config-ref="json-logger-config" message='#["-----" ++ upper("log-order-assignment-bypass") ++ "-----"]' tracePoint="FLOW">
+					<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+    event: "ORDER_ASSIGNMENT_SKIPPED",
+    reason: "Assignment list is empty",
+    details: {
+        packagedOrdersCount: sizeOf(vars.orders default []),
+        activePartnersCount: sizeOf(vars.dps default []),
+        generatedAssignments: sizeOf(payload default [])
+    },
+    status: "NO_ACTION_TAKEN"
+}]]]></json-logger:content>
+				</json-logger:logger>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="convert-to-json" doc:id="752d4386-24e1-4dd8-9d3f-dd26894ed896" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "message": "Orders assigned successfully",
+  "status": "Completed"
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-scheduler-order-assignment-dp-flow-end" doc:id="c42ae172-5b6f-44d5-96e7-dae1b8b77e66" config-ref="json-logger-config" message='#["-----" ++ upper("log-scheduler-order-assignment-dp-flow-end") ++ "-----"]' tracePoint="END"/>
+	</flow>
+	<sub-flow name="update-order-and-deliverypartner-status-sub-flow" doc:id="9f1e7ab6-dbd4-40c9-bed4-bfd5acb909dd" >
+		<json-logger:logger doc:name="log-update-order-and-partner-status" doc:id="cd516ea4-a9fc-4903-9ed9-451cf71f50b4" config-ref="json-logger-config" message='#["-----" ++ upper("log-update-order-and-partner-status-flow-start") ++ "------"]'/>
+		<ee:transform doc:name="prepare-put-partner-request" doc:id="f65fbf1d-0505-4c07-ae97-3ade7c0fdf77" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var dp = vars.dps
+---
+[
+(dp filter ((item, index) -> item.Partner_Id__c==payload.partnerId))[0] -"IsActive__c" - "Last_Assigned_Time__c" -"" ++ 
+{
+	IsActive__c:false,
+	Last_Assigned_Time__c:now() as String {format:"yyyy-MM-dd"}
+}
+]]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PUT",
+	"path": "/deliveryPartners/" ++ payload.partnerId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="update-deliverypartner-status" doc:id="69acf7b6-3677-4b5e-8928-bcbdc8839ee0" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="partner-email-payload" doc:id="25a654ac-7bd8-4424-999e-a61851a19dd1">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+((vars.dps filter ((item, index) -> item.Partner_Id__c==vars.assignedOrders[0].partnerId)) map ((item, index) -> {
+  "email": item.Email__c,
+  "subject": "New Order Assigned – Please Check Your Dashboard",
+  "body": "Hello " ++ item.Name__c ++ 
+          " A new order has been assigned to you, Please review and start the delivery process."
+}))[0]
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="mail"><![CDATA[%dw 2.0
+output application/json
+---
+((vars.dps filter ((item, index) -> item.Partner_Id__c==payload.partnerId)) map ((item, index) -> {
+  "mail": item.email,
+  "subject": "New Order Assigned – Please Check Your Dashboard",
+  "body": "Hello " ++ item.Name__c ++ 
+          " A new order has been assigned to you, Please review and start the delivery process."
+}))[0]
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="send-mail-to-deliverypartner" doc:id="1f4b2378-7fc8-4989-80b7-d8be00c46ff2" name="mail-sub-flow"/>
+		<ee:transform doc:name="prepare-put-order-request" doc:id="b1174de0-5987-441e-ba18-e348bb36144c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var orders=vars.orders
+var dps=vars.dps
+---
+[
+(orders filter ((item, index) -> item.Order_Id__c==vars.assignedOrders[0].orderId))[0] - "Order_Status__c" - "DeliveryPartner__c" - "IsCancelled__c" ++ {
+      Order_Status__c:"shipped",
+      DeliveryPartner__c: (dps filter ((item, index) -> item.Partner_Id__c==vars.assignedOrders[0].partnerId))[0].Id
+}
+]]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PATCH",
+	"path": "/orders/" ++ vars.assignedOrders[0].orderId as String default ""
+}]]></ee:set-variable>
+				<ee:set-variable variableName="orderStatus" ><![CDATA[%dw 2.0
+output application/json
+---
+"shipped"]]></ee:set-variable>
+			
+</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="update-order-status" doc:id="7dde38db-b206-48ae-9dde-19a8cc1970d3" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="prepare-get-customer-request" doc:id="0e87d908-825d-4619-b46f-f6048ae4d01d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="req"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/customers/" ++ (vars.orders filter ((item, index) -> item.Order_Id__c==vars.assignedOrders[0].orderId))[0].Customer__c
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="send-mail-to-customer" doc:id="8f46f0e5-df32-4099-b43e-75fc04b78ba0" name="send-mail-to-customer-sub-flow" />
+		<json-logger:logger doc:name="log-update-order-and-partner-status-flow-end" doc:id="099e046d-3cef-46c4-982a-3d647cbde0da" config-ref="json-logger-config" message='#["-----" ++ upper("log-update-order-and-partner-status-flow-end") ++ "-----"]'/>
+	</sub-flow>
+</mule>

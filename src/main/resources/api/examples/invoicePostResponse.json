@@ -1,0 +1,5 @@
+              {
+                "message": "Invoice generation failed",
+                "errorCode": "INVOICE_CREATION_ERROR",
+                "details": "Salesforce system not reachable"
+              }

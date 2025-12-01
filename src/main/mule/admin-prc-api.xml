@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+    <flow name="admin-prc-api-main" doc:id="16399925-1930-48b1-959a-2ed5600d76c1">
+        <http:listener config-ref="admin-prc-api-httpListenerConfig" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="admin-prc-api-config" />
+    </flow>
+    <flow name="put:\api\v1\inventory\(productId):application\json:admin-prc-api-config">
+        <json-logger:logger doc:name="log-update-salesforce-inventory-impl-sub-flow-start" doc:id="5fddec04-0b66-4d68-9588-0fb29dc1cc36" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-update-salesforce-inventory-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="00d3c5cf-ffb5-41d0-94a8-9f288282f7b5" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="put-product-by-id-record-sub-flow" doc:id="714b1f9d-d1d9-4a7b-94f8-a63bfabac988" name="put-product-by-id-record-sub-flow" />
+        <json-logger:logger doc:name="log-update-salesforce-inventory-impl-sub-flow-end" doc:id="58df40c0-537f-4e8c-b99b-53a6a05dd0a6" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-update-salesforce-inventory-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="delete:\api\v1\inventory\(productId):admin-prc-api-config">
+        <json-logger:logger doc:name="log-delete-salesforce-inventory-impl-sub-flow-start" doc:id="b4d65694-7e2f-489a-9ef0-2b17d0cc89f0" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-delete-salesforce-inventory-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="3f1ac559-3a5c-4a3f-838f-54adfd83b309" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="delete-product-by-id-record-sub-flow" doc:id="8862959c-1a0c-4be1-af88-9eb8cbe85d33" name="delete-product-by-id-record-sub-flow" />
+        <json-logger:logger doc:name="log-delete-salesforce-inventory-impl-sub-flow-end" doc:id="1781e6b2-4d14-4c05-8bfc-c9e915def3b3" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-delete-salesforce-inventory-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="patch:\api\v1\transit\(transitId):application\json:admin-prc-api-config">
+        <json-logger:logger doc:name="log-update-salesforce-transit-impl-sub-flow-start" doc:id="0e2a5fa8-57f1-491b-9279-a09acafbc07e" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-update-salesforce-transit-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="1e7e5f32-5bcd-4ce6-823b-e71a4ca456c1" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="patch-transit-record-by-id-sub-flow" doc:id="e76a2319-0a03-46b7-84d2-78d00951f01f" name="patch-transit-record-by-id-sub-flow" />
+        <json-logger:logger doc:name="log-update-salesforce-transit-impl-sub-flow-end" doc:id="51640119-20e5-4693-85f5-079f5bd722ee" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-update-salesforce-transit-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="get:\api\v1\inventory:admin-prc-api-config">
+        <json-logger:logger doc:name="log-fetch-salesforce-inventory-impl-sub-flow-start" doc:id="ef627c78-7738-4be2-ae4d-9daf30034614" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-fetch-salesforce-inventory-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="7b3d23b0-f239-4f3f-8d4a-a3dd6f3bd68d" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="get-inventory-data-sub-flow" doc:id="7cffd2db-db6c-4837-b4e4-cf154dda53fb" name="get-inventory-data-sub-flow" />
+        <json-logger:logger doc:name="log-fetch-salesforce-inventory-impl-sub-flow-end" doc:id="96525a2c-a75b-44f3-af20-2959dc88faca" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-fetch-salesforce-inventory-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="get:\api\v1\transit:admin-prc-api-config">
+        <json-logger:logger doc:name="log-fetch-salesforce-transit-impl-sub-flow-start" doc:id="1a561bab-ab52-4ec7-9ae2-2c213eb70f7d" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-fetch-salesforce-transit-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="92a852d9-17be-483c-977d-327b3ded218b" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="get-transit-records-sub-flow" doc:id="dde3b0e4-81ec-4fb1-a632-e4750caafe60" name="get-transit-records-sub-flow" />
+        <json-logger:logger doc:name="log-fetch-salesforce-transit-impl-sub-flow-end" doc:id="4f3df055-1658-4858-b2b1-0340a29443bb" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-fetch-salesforce-transit-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="get:\api\v1\inventory\(productId):admin-prc-api-config">
+        <json-logger:logger doc:name="log-fetch-by-id-salesforce-iinventory-impl-sub-flow-start" doc:id="ab7ca15d-ec59-42ed-b194-e412fdfa3ba6" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-fetch-by-id-salesforce-iinventory-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="7f10d2e8-8ee6-498b-8573-7fd3886b26f2" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="get-inventory-by-id-sub-flow" doc:id="493a955d-3d43-4d84-af63-52120553d105" name="get-product-by-id-sub-flow" />
+        <json-logger:logger doc:name="log-fetch-by-id-salesforce-iinventory-impl-sub-flow-end" doc:id="c5db0f91-1598-4f9c-ac6e-63c416da56cc" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-fetch-by-id-salesforce-iinventory-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="post:\api\v1\inventory:application\json:admin-prc-api-config" doc:id="81d90073-64b3-47bd-a56d-0f3a1091ecc8">
+        <json-logger:logger doc:name="log-create-salesforce-inventory-impl-sub-flow-start" doc:id="de32ce0b-07e5-44e5-95b5-5b8b7590801d" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-create-salesforce-inventory-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="c2122481-299d-4aa9-8def-45653ff96fd2" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="post-product-record-sub-flow" doc:id="361c6b6c-3d0d-4320-a0c3-44ccb4be316f" name="post-product-record-sub-flow" />
+        <json-logger:logger doc:name="log-create-salesforce-inventory-impl-sub-flow-end" doc:id="c51d5dab-0760-47df-9e32-460c1284bcad" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-create-salesforce-inventory-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+    <flow name="post:\api\v1\transit:application\json:admin-prc-api-config">
+        <json-logger:logger doc:name="log-create-salesforce-transit-mpl-sub-flow-start" doc:id="e8df4084-1263-4dcb-9ed9-b2542a7a5d62" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-create-salesforce-transit-impl-sub-flow-start&quot;) ++ &quot;-----&quot;]" />
+        <flow-ref doc:name="set-request-params-sub-flow" doc:id="e380c95f-c509-46a9-9cd2-b8ac74867870" name="utilsSub_Flow" target="requestParams" />
+        <flow-ref doc:name="post-transit-record-sub-flow" doc:id="ca5614fe-425e-4bb6-89ed-ce44fa206eeb" name="post-transit-record-sub-flow" />
+        <json-logger:logger doc:name="log-create-salesforce-transit-mpl-sub-flow-end" doc:id="8553878a-230d-4c1c-a8b1-a06514fa5cbf" config-ref="json-logger-config" message="#[&quot;-----&quot; ++ upper(&quot;log-create-snowflake-transit-impl-sub-flow-end&quot;) ++ &quot;-----&quot;]" />
+    </flow>
+</mule>

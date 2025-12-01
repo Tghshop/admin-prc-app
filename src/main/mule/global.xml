@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd">
+		<http:request-config name="mail-sys-api-requester" doc:name="HTTP Request configuration" doc:id="f3c4fed2-0df3-4379-bfc9-8f879805cd2d" basePath="${http-requester.sapi.mail.basepath}" responseTimeout="${http-requester.sapi.mail.response-timeout}">
+		<http:request-connection protocol="HTTPS" host="${http-requester.sapi.mail.host}" >
+			<reconnection >
+				<reconnect frequency="${http-requester.sapi.mail.reconnect-frequency}" count="${http-requester.sapi.mail.reconnect-count}" />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+	 <http:listener-config name="admin-prc-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+   	<http:request-config name="salesforce-sys-api-requester" doc:name="HTTP Request configuration" doc:id="bee7a436-0261-4571-b8ab-af9dbdf8077d" basePath="${http-requester.sapi.salesforce.basepath}" responseTimeout="${http-requester.sapi.salesforce.response-timeout}">
+		<http:request-connection protocol="HTTPS" host="${http-requester.sapi.salesforce.host}" port="${http-requester.sapi.salesforce.port}" >
+			<reconnection >
+				<reconnect frequency="${http-requester.sapi.salesforce.reconnect-frequency}" count="${http-requester.sapi.salesforce.reconnect-count}" />
+			</reconnection>
+		</http:request-connection>
+	</http:request-config>
+    <apikit:config name="admin-prc-api-config" api="admin-prc-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<json-logger:config name="json-logger-config" doc:name="JSON Logger Config" doc:id="e50bc178-0049-446c-81c1-9ae5aefa5aeb" applicationName="${app.name}" environment="${mule.env}" applicationVersion="${app.version}"/>
+	<configuration-properties doc:name="Configuration properties" doc:id="676986ac-d1a9-405c-9803-f16aef789694" file="properties/${mule.env}-properties.yaml" />
+	<configuration doc:name="Configuration" doc:id="03039bed-ad6d-4cf3-a4b3-731dafa8701f" defaultErrorHandler-ref="global-error-handler" />
+	<error-handler name="global-error-handler" doc:id="46e6648b-f620-4969-96e2-f60c0a52728a" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="93a67c33-989f-4419-9b34-01954c6fae06" type="ANY">
+			<ee:transform doc:name="error-payload-to-json" doc:id="5e5f46b2-44e8-4d2e-b03b-b4dc8df9e9d9" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"errorCode":"500",
+	"errorMessage": error.description,
+	"errorPayloadContent": error.errorMessage.payload,
+	"correlationId": correlationId,
+	"status": "ERROR"
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="httpStatus" ><![CDATA[500]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<json-logger:logger doc:name="global-error-logger" doc:id="5f4429da-ab8c-4385-b73c-93ed8b33859e" message='#["-----" ++ upper("global-error-logger") ++ "-----"]' tracePoint="EXCEPTION" priority="ERROR" config-ref="json-logger-config">
+				<json-logger:content ><![CDATA[#[output application/json
+---
+payload]]]></json-logger:content>
+			</json-logger:logger>
+		</on-error-propagate>
+	</error-handler>
+	</mule>

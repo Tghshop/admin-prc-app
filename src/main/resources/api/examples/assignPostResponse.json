@@ -1,0 +1,6 @@
+{
+  "message": "Order assigned successfully",
+  "orderId": "ORD12345",
+  "status": "Assigned",
+  "timestamp": "2025-11-11T12:15:00Z"
+}

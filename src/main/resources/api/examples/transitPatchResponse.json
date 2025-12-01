@@ -1,0 +1,6 @@
+              {
+                "message": "Transit status updated successfully",
+                "orderId": "ORD12345",
+                "transitId": "TRANS5678",
+                "status": "Delivered"
+              }

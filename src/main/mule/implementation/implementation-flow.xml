@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:json-logger="http://www.mulesoft.org/schema/mule/json-logger"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<sub-flow name="get-inventory-data-sub-flow" doc:id="283e9174-1a40-4363-abf7-5411c03c35b6" >
+		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-start" doc:id="461b6768-ee6c-4407-8473-61427f769e79" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-start") ++ "---------------"]'/>
+		<ee:transform doc:name="prepare-get-inventory-request" doc:id="506a05d2-cc06-470d-a1c1-82091f2679a9" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/inventory"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-inventory-data" doc:id="62b8c383-000d-4e3a-a1f1-c3eae3ef6998" name="salesforce-operations-sub-flow"/>
+		<ee:transform doc:name="convert-payload-to-json" doc:id="4de05b1e-8469-468d-b3ca-e5f2648bb57a">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map ((item, index) -> {
+    productId:item.Product_Id__c,
+    productName:item.Product_Name__c,
+    price:item.price__c,
+    category:item.Category__c,
+    quantity:item.Stock_Available__c as Number,
+    isAvailable:item.IsAvailable__c,
+    lastUpdated:item.Last_Updated__c
+})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name='log-get-inventory-data-sub-flow-end' doc:id="2aeb92aa-453a-4d86-9cf6-bac6ff7b4598" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-end") ++ "---------------"]'/>
+	</sub-flow>
+	<sub-flow name="get-product-by-id-sub-flow" doc:id="8a01c85f-d26f-4afb-8543-fa3ad7f0e773" >
+		<json-logger:logger doc:name="log-get-product-by-id-sub-flow-start" doc:id="bb10684e-c4c9-4fe2-9260-08f9c0867dc4" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-product-by-id-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-get-inventory-by-id-request" doc:id="252a43a6-3027-463a-9875-d9bc6bd4639b" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/inventory/" ++ vars.requestParams.uriParams.productId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-inventory-data" doc:id="9237e703-82d3-4360-ac65-1884f6f34584" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="convert-payload-to-json" doc:id="ad5af630-bf6a-4940-ae9c-69f56d968683" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+(payload map ((item, index) -> {
+    productId:item.Product_Id__c,
+    productName:item.Product_Name__c,
+    price:item.price__c,
+    category:item.Category__c,
+    quantity:item.Stock_Available__c as Number,
+    isAvailable:item.IsAvailable__c,
+    lastUpdated:item.Last_Updated__c
+}))[0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-get-product-by-id-sub-flow-end" doc:id="c2e2e87d-66ed-45c0-8940-18cb31ea7f41" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-product-by-id-sub-flow-end") ++ "---------------"]' />
+	</sub-flow>
+	<sub-flow name="post-product-record-sub-flow" doc:id="059a9fc4-6e20-43b2-9e23-2c0772106ba2" >
+		<json-logger:logger doc:name="log-post-inventory-record-sub-flow-start" doc:id="5b11984c-1fd7-470d-879e-0fb162336c26" config-ref="json-logger-config" message='#["-------------" ++ upper("log-post-inventory-record-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-post-inventory-request" doc:id="d34ea40b-2561-4810-be70-02b801741d7e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[
+{
+  Category__c: payload.category default "",
+  IsAvailable__c: payload.isAvailable default "",
+  Last_Updated__c: payload.lastUpdated default "",
+  price__c: payload.price default "",
+  Product_Id__c: payload.productId default "",
+  Product_Name__c: payload.productName default "",
+  Stock_Available__c: payload.stockAvailable default ""
+}
+]]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "POST",
+	"path": "/inventory"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="create-products-in-inventory" doc:id="78344609-f245-4517-a0c2-17cbbe716de8" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="convert-payload-to-json" doc:id="1d790cd9-3fe2-4695-947c-e62dc02f85b6">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "message": "Product added to inventory successfully",
+    "category": vars.requestParams.payload.category,
+    "productId": vars.requestParams.payload.productId,
+    "name": vars.requestParams.payload.productName,
+    "quantity": vars.requestParams.payload.stockAvailable,
+    "price": vars.requestParams.payload.price,
+    "createdAt": vars.requestParams.payload.lastUpdated
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-post-inventory-record-sub-flow-end" doc:id="efc90247-c1ff-4246-b1e4-9b06b6619498" config-ref="json-logger-config" message='#["-------------" ++ upper("log-post-inventory-record-sub-flow-end") ++ "---------------"]' />
+	</sub-flow>
+	<sub-flow name="put-product-by-id-record-sub-flow" doc:id="bedc4e3d-64cf-4898-955e-97a0698d15fd" >
+		<json-logger:logger doc:name="log-put-product-by-id-record-sub-flow-start" doc:id="4da115e4-fd53-48b1-8c37-0f17cc03ae1d" config-ref="json-logger-config" message='#["-------------" ++ upper("log-put-product-by-id-record-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-get-inventory-by-id-request" doc:id="9f858573-e242-47b9-8dbe-dd650e74e272" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/inventory/" ++ vars.requestParams.uriParams.productId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-inventory-record" doc:id="058de7a3-eea5-40e6-ad19-8bb74161e02e" name="salesforce-operations-sub-flow" target="product"/>
+		<ee:transform doc:name="prepare-put-inventory-request" doc:id="11754326-7fa9-4071-9307-42c80a5c3c03">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var updDet=vars.requestParams.payload
+var p={
+    "Name_c":updDet.name default "",
+    "IsAvailable__c":updDet.isAvailable default "",
+    "Last_Updated__c":updDet.lastUpdated default "",
+    "Category__c":updDet.category default "",
+    "price__c":updDet.price default "",
+    "Product_Id__c":updDet.productId default "",
+    "Product_Name__c":updDet.productName default "",
+    "Stock_Available__c":updDet.stockAvailable default ""
+}filterObject ((value, key, index) -> value != "")
+---
+[
+vars.product[0] -- (p pluck ((value, key, index) -> key)) ++ p
+]]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="req"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PUT",
+	"path": "/inventory/" ++ vars.requestParams.uriParams.productId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="update-inventory-record" doc:id="3f5ed0f2-b9c1-4b2e-8458-947b54ae038d" name="salesforce-operations-sub-flow"/>
+		<ee:transform doc:name="convert-payload-to-json" doc:id="846ff9b3-0a99-4699-bad1-2b2a6914b528">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "message": "Product updated in inventory successfully",
+    "productId": vars.requestParams.uriParams.productId,
+    "updatedFields": [
+        vars.requestParams.payload
+    ]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-put-product-by-id-record-sub-flow-end1" doc:id="82edfdb4-8695-4659-aa69-07a36a679573" config-ref="json-logger-config" message='#["-------------" ++ upper("log-put-product-by-id-record-sub-flow-end") ++ "---------------"]' />
+	</sub-flow>
+	<sub-flow name="delete-product-by-id-record-sub-flow" doc:id="36e91023-fa5e-4cbd-aeee-973fdba7478a" >
+		<json-logger:logger doc:name="log-delete-product-by-id-record-sub-flow-start" doc:id="9df68877-f3df-4a5c-94a0-323ee921ddfd" config-ref="json-logger-config" message='#["-------------" ++ upper("log-delete-product-by-id-record-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-get-inventory-by-id-request" doc:id="3e27b6d3-286b-4023-9014-a22ee9dea147" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/inventory/" ++ vars.requestParams.uriParams.productId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-inventory-record" doc:id="9d889530-1b14-4f98-959e-b19a54e96269" name="salesforce-operations-sub-flow" target="product"/>
+		<ee:transform doc:name="prepare-delete-inventory-by-id-request1" doc:id="739757ab-847b-47c3-bf72-d43887fb0e99">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+[
+(vars.product[0] - "IsAvailable__c") ++ {
+	IsAvailable__c: false
+}
+]
+ ]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="req"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PUT",
+	"path": "/inventory/" ++ vars.requestParams.uriParams.productId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="delete-product-in-inventory" doc:id="179d0ab2-d3b3-41a8-91ce-150411bc0f87" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="convert-payload-to-json" doc:id="1fb8ffc0-6bbd-4498-8b3c-229110242a99">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "message": "Product deleted successfully",
+    "productId": vars.requestParams.uriParams.productId
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-get-transit-data-sub-flow-end" doc:id="e402563b-20ea-4b0a-b131-8cb469f4bc92" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-transit-data-sub-flow-end") ++ "---------------"]' />
+	</sub-flow>
+	<sub-flow name="post-transit-record-sub-flow" doc:id="b04527d2-8caa-4ab4-b477-6837a587a2ef" >
+		<json-logger:logger doc:name="log-post-transit-record-sub-flow-start" doc:id="265ed184-93c4-4a94-8189-d31af7cd6caf" config-ref="json-logger-config" message='#["-------------" ++ upper("log-post-transit-record-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-get-order-request" doc:id="12927083-5c11-4ec2-9e07-f33fc610e11a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/orders/"++ vars.requestParams.payload.orderId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-order-details" doc:id="f8f8de4f-5cee-43d6-99a0-617789516f16" name="salesforce-operations-sub-flow" target="order"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="8f46bf38-a883-4bb8-8841-a207043e8419" >
+			<route >
+				<ee:transform doc:name="prepare-get-customer-request" doc:id="dc38f9c8-274e-4125-9cd0-5af4e5c14747" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/customers/"++ vars.order[0].Customer__c as String default ""
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="fetch-customer-details" doc:id="1a8a5a32-72df-42a2-bd10-6d4ced046f2c" name="salesforce-operations-sub-flow"/>
+				<ee:transform doc:name="extract-customer-info" doc:id="09b42656-5a82-47e1-8661-b68e0d01119e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    destination_city:payload[0].City__c,
+    customer_id:payload[0].Id
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+			<route >
+				<ee:transform doc:name="prepare-get-partner-request" doc:id="a0a54344-eee4-4202-bf89-f1e9d29a5521" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/deliveryPartners/"++ vars.order[0].DeliveryPartner__c  as String default ""
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<flow-ref doc:name="fetch-deliverypartner-details" doc:id="cdfc1ee3-a683-4b7f-87d1-b29add54e51d" name="salesforce-operations-sub-flow"/>
+				<ee:transform doc:name="extract-partner-info" doc:id="89473484-a29d-4b7b-8c5c-755ac175669a" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	partner_id:payload[0].Id
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="prepare-post-transit-request" doc:id="0d60a3d7-a74f-43b4-8345-8454147c11a3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+[
+{
+    order__c: vars.order[0].Id default "",
+    Current_City__c: vars.requestParams.payload.currentCity default "",
+    Transit_Id__c: vars.requestParams.payload.transitId default "",
+    DeliveryPartner__c: payload."1".payload.partner_id default "",
+    customer__c: payload."0".payload.customer_id default "",
+    Destination_City__c: payload."0".payload.destination_city default "",
+    Source_City__c: vars.order[0].warehouse_city__c default ""
+}
+]
+]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "POST",
+	"path": "/transits"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="insert-transit-record-sub-flow" doc:id="43d03f9a-3203-4c3d-a315-d40716f1374c" name="salesforce-operations-sub-flow" target="response"/>
+		<ee:transform doc:name="prepare-put-order-request" doc:id="3169ea5b-5050-4a13-be22-580d7f136662">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var order=vars.order
+---
+order map ((item, index) -> item - "Transit__c" ++ {Transit__c:vars.response.items[0].id})]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PATCH",
+	"path": "/orders/" ++ vars.order[0].Id as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="update-order-record-in-saelsforcs-sub-flow" doc:id="3e712895-dcc0-4dfc-9677-8e70a1c75d42" name="salesforce-operations-sub-flow"/>
+		<ee:transform doc:name="convert-payload-to-json" doc:id="f6d4c7a0-5c5b-4618-879f-bd25977bf2f7">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "message": "Transit record created successfully",
+    "transitId": vars.requestParams.payload.transitId,
+    "orderId": vars.requestParams.payload.orderId,
+    "status": "In Transit"
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-post-transit-record-sub-flow-end" doc:id="304979ff-3050-4114-8f39-10ba0f241d69" config-ref="json-logger-config" message='#["-------------" ++ upper("log-post-transit-record-sub-flow-end") ++ "---------------"]' tracePoint="END"/>
+	</sub-flow>
+	<sub-flow name="get-transit-records-sub-flow" doc:id="b4f310c3-9aaa-45ef-b22d-de0c7205751d" >
+		<json-logger:logger doc:name="log-get-transit-data-sub-flow-start" doc:id="3227963b-27d7-48bb-ad09-7170f8461298" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-transit-data-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-get-transit-request" doc:id="23e63e05-5bd5-4dc8-bdc7-f0325f1a55e4" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/transits"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-transit-data" doc:id="2bd9df26-130b-481c-ba97-a6be64ec8609" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="Transform Message1" doc:id="db149cd0-c8ff-48f9-89bf-246ef44c060b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map ((item, index) -> {
+    transitId:item.Transit_Id__c,
+    orderId:item.order__c,
+    customerId:item.customer__c,
+    deliveryPartnerId:item.DeliveryPartner__c,
+    currentCity:item.Current_City__c,
+    sourceCity:item.Source_City__c,
+    destinationCity:item.Destination_City__c,
+})]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-end" doc:id="844ee5e9-f48c-41df-b443-bc1c99c3d455" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-end") ++ "---------------"]' />
+	</sub-flow>
+	<sub-flow name="patch-transit-record-by-id-sub-flow" doc:id="755fdcec-70fe-4a1a-97d1-9d61673de69c" >
+		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-start" doc:id="ec2e1b95-d25c-4c13-afaf-8e81358cac5b" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-start") ++ "---------------"]' />
+		<ee:transform doc:name="prepare-get-transit-by-id-request" doc:id="a461b72e-0425-4d9b-8730-e38e2e49a972" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/transits/" ++ vars.requestParams.uriParams.transitId as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-transit-data" doc:id="56a0b133-a04a-4cd2-9700-28fc9e13d320" name="salesforce-operations-sub-flow" target="transit" />
+		<ee:transform doc:name="prepare-put-transit-request" doc:id="cf8fa097-ea18-4fa2-8311-f095fbeb2642" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var updDet=vars.requestParams.payload
+var tr={
+    "Transit_Id__c": updDet.transitId default "",
+    "order__c": updDet.orderId default "",
+    "customer__c": updDet.customerId  default "",
+    "DeliveryPartner__c": updDet.deliveryPartnerId  default "",
+    "Current_City__c": updDet.currentCity  default "",
+    "Source_City__c": updDet.sourceCity default "",
+    "Destination_City__c": updDet.destinationCity  default ""
+} filterObject ((value, key, index) -> value != "")
+---
+[
+	vars.transit[0] -- (tr pluck ((value, key, index) -> key)) ++ tr
+]]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PATCH",
+	"path": "/transits/" ++ vars.transit[0].Transit_Id__c as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="update-transit-data" doc:id="9009b36b-0c7e-4be7-aa8f-8ac92e5f08c0" name="salesforce-operations-sub-flow" />
+		<choice doc:name="currentcity-equals-destination" doc:id="482d8062-93bc-43ea-8281-b92bdfdcc9eb" >
+			<when expression="#[vars.transit[0].Destination_City__c==vars.requestParams.payload.currentCity]">
+				<flow-ref doc:name="update-order-status-sub-flow" doc:id="a74b7d59-a934-4297-8676-e711f5e290ae" name="update-order-status-sub-flow"/>
+			</when>
+			<otherwise >
+				<json-logger:logger doc:name="log-order-recordlog-bypass" doc:id="c34ea2a8-7087-4f06-9ca1-381181e235e9" config-ref="json-logger-config" message='#["-----" ++ upper("log-order-recordlog-bypass") ++ "-----"]' tracePoint="FLOW">
+					<json-logger:content ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+    logId: upper("log-order-status-bypass-transit-mismatch"),
+    message: "Order status update bypassed due to destination–current city mismatch",
+    details: {
+        destinationCity: vars.transit[0].Destination_City__c default "UNKNOWN",
+        currentCity: vars.requestParams.payload.currentCity default "UNKNOWN",
+        orderId: vars.transit[0].Order_Id__c default "UNKNOWN"
+    },
+    status: "NO_ACTION_TAKEN"
+}]]]></json-logger:content>
+				</json-logger:logger>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="convert-payload-to-json" doc:id="4a0cf809-7f97-48aa-a1e2-9f9811ed326c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-end" doc:id="0339f444-066c-4fcf-b2c8-ae83742f7454" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-end") ++ "---------------"]' />
+	</sub-flow>
+	<sub-flow name="update-order-status-sub-flow" doc:id="1367a13e-7d5b-4aba-b8d6-9d53d6ce2b9e" >
+		<json-logger:logger doc:name="log-update-order-data-sub-flow-start" doc:id="52a3aacf-b402-4d61-91de-04cbbedfea22" config-ref="json-logger-config" message='#["-------------" ++ upper("log-update-order-data-sub-flow-start") ++ "---------------"]'/>
+		<ee:transform doc:name="prepare-get-order-by-id-request" doc:id="57095dad-9ebd-40ea-9857-03b31e76f2aa" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/orders/"  ++ vars.transit[0].order__c as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="fetch-order-data" doc:id="640f1261-aa8a-46f0-abff-3406972b842a" name="salesforce-operations-sub-flow" target="order" />
+		<ee:transform doc:name="prepare-put-order-request" doc:id="bd65add2-6eee-48a6-8423-dedac0d74afc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.order map ((item, index) -> item - "Order_Status__c" ++ {Order_Status__c:"out for delivery"})]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "PATCH",
+	"path": "/orders/" ++ vars.transit[0].order__c as String default ""
+}]]></ee:set-variable>
+				<ee:set-variable variableName="orderStatus" ><![CDATA[%dw 2.0
+output application/json
+---
+"out for delivery"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="update-order-status" doc:id="8204707c-bb34-4348-954c-549e929644fc" name="salesforce-operations-sub-flow"/>
+		<ee:transform doc:name="Transform Message1" doc:id="0f2bc19d-184b-46bb-ab1e-6b07d15a1184" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/customers/" ++ vars.order[0].Customer__c as String default ""
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="req" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"method": "GET",
+	"path": "/customers/" ++ vars.order[0].Customer__c as String default ""
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="send-mail-to-customer" doc:id="69c2cefe-c65d-4f56-ad1b-91680f9d4b05" name="send-mail-to-customer-sub-flow" />
+		<ee:transform doc:name="Transform Message" doc:id="995388fa-a301-4b2b-86cb-f05d52945bd5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "message": "Transit record updated in inventory successfully",
+    "transitId": vars.requestParams.uriParams.transitId,
+    "updatedFields": [
+        vars.requestParams.payload
+    ]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<json-logger:logger doc:name="log-update-order-data-sub-flow-end" doc:id="3e223379-a111-4482-a00e-7107bc9bec44" config-ref="json-logger-config" message='#["-------------" ++ upper("log-update-order-data-sub-flow-end") ++ "---------------"]'/>
+	</sub-flow>
+	<sub-flow name="send-mail-to-customer-sub-flow" doc:id="703710be-e49e-43d0-8e28-52d06c60cb6c" >
+		<json-logger:logger doc:name="log-send-mail-to-customer-sub-flow-start" doc:id="6de3bc8a-9207-409e-82ba-5da09f8e9d3a" config-ref="json-logger-config" message='#["-------------" ++ upper("log-send-mail-to-customer-sub-flow-start") ++ "---------------"]'/>
+		<flow-ref doc:name="fetch-customer-details" doc:id="ef5fe86b-403b-459e-b3a9-c46cd8d6cfcc" name="salesforce-operations-sub-flow" />
+		<ee:transform doc:name="prepare-email-payload" doc:id="8554d4d4-6dd2-4ed8-8ba9-636b22ec0eb4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var status = upper(vars.orderStatus default "")
+var name = payload[0].Name__c
+var email = payload[0].Email__c
+var orderId=if(vars.assignedOrders[0].orderId==null) vars.order[0].Order_Id__c else vars.assignedOrders[0].orderId
+var date=if(vars.assignedOrders[0].deliveryDate==null) vars.order[0].Delivery_Date__c else vars.assignedOrders[0].deliveryDate
+---
+{
+  email: email,
+  subject: 
+      if(status == "SHIPPED") 
+         "Your Order Has Been Shipped"
+      else
+         "Your Order Is Out for Delivery" ,
+  body: "Hi "++ name ++",\n\nThank you for placing your order with us.\n\nYour order details are as follows:\n  • Order ID: "++ orderId ++"\n • Status: "++ status ++"\n  • Estimated Delivery: "++ date ++"\n\nWe appreciate your trust in our service.\nWe hope to deliver your order on time and make your experience smooth and hassle-free!"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="send-mail-to-customer" doc:id="16210226-b6b0-4aa9-91e3-7a5097bb09ce" name="mail-sub-flow" />
+		<json-logger:logger doc:name="log-send-mail-to-customer-sub-flow-end" doc:id="3b6d7cf3-51c4-47f7-8d7a-8fe6e2212a7a" config-ref="json-logger-config" message='#["-------------" ++ upper("log-send-mail-to-customer-sub-flow-end") ++ "---------------"]'/>
+	</sub-flow>
+</mule>

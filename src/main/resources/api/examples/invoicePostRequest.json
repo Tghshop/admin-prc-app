@@ -1,0 +1,6 @@
+      {
+        "orderId": "ORD12345",
+        "customerId": "CUST789",
+        "amount": 2500.00,
+        "generatedBy": "Admin001"
+      }

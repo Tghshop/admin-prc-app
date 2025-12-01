@@ -1,0 +1,3 @@
+{
+  "stockAvailable": 50
+}
