@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/m
 			</reconnection>
 		</http:request-connection>
 	</http:request-config>
-    <apikit:config name="admin-prc-api-config" api="admin-prc-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="admin-prc-api-config" api="admin-prc-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus"/>
 	<json-logger:config name="json-logger-config" doc:name="JSON Logger Config" doc:id="e50bc178-0049-446c-81c1-9ae5aefa5aeb" applicationName="${app.name}" environment="${mule.env}" applicationVersion="${app.version}"/>
 	<configuration-properties doc:name="Configuration properties" doc:id="676986ac-d1a9-405c-9803-f16aef789694" file="properties/${mule.env}-properties.yaml" />
 	<configuration doc:name="Configuration" doc:id="03039bed-ad6d-4cf3-a4b3-731dafa8701f" defaultErrorHandler-ref="global-error-handler" />

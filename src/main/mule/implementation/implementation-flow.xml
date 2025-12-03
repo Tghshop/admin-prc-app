@@ -504,7 +504,13 @@ output application/json
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload]]></ee:set-payload>
+{
+    "message": "Transit record updated in inventory successfully",
+    "transitId": vars.requestParams.uriParams.transitId,
+    "updatedFields": [
+        vars.requestParams.payload
+    ]
+}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-end" doc:id="0339f444-066c-4fcf-b2c8-ae83742f7454" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-end") ++ "---------------"]' />
@@ -547,7 +553,7 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<flow-ref doc:name="update-order-status" doc:id="8204707c-bb34-4348-954c-549e929644fc" name="salesforce-operations-sub-flow"/>
-		<ee:transform doc:name="Transform Message1" doc:id="0f2bc19d-184b-46bb-ab1e-6b07d15a1184" >
+		<ee:transform doc:name="prepare-get-customer-by-id-request" doc:id="0f2bc19d-184b-46bb-ab1e-6b07d15a1184" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -568,20 +574,6 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<flow-ref doc:name="send-mail-to-customer" doc:id="69c2cefe-c65d-4f56-ad1b-91680f9d4b05" name="send-mail-to-customer-sub-flow" />
-		<ee:transform doc:name="Transform Message" doc:id="995388fa-a301-4b2b-86cb-f05d52945bd5" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-    "message": "Transit record updated in inventory successfully",
-    "transitId": vars.requestParams.uriParams.transitId,
-    "updatedFields": [
-        vars.requestParams.payload
-    ]
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
 		<json-logger:logger doc:name="log-update-order-data-sub-flow-end" doc:id="3e223379-a111-4482-a00e-7107bc9bec44" config-ref="json-logger-config" message='#["-------------" ++ upper("log-update-order-data-sub-flow-end") ++ "---------------"]'/>
 	</sub-flow>
 	<sub-flow name="send-mail-to-customer-sub-flow" doc:id="703710be-e49e-43d0-8e28-52d06c60cb6c" >
