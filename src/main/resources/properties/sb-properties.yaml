@@ -15,6 +15,10 @@ http-requester:
     reconnect-count: "3"
    
    
+scheduler:
+ order:
+  frequency: "1"
+  start-delay: "0"
    
 retry:
  count: "3"

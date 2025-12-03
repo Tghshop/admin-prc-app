@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/json-logger http://www.mulesoft.org/schema/mule/json-logger/current/mule-json-logger.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
-	<sub-flow name="get-inventory-data-sub-flow" doc:id="283e9174-1a40-4363-abf7-5411c03c35b6" >
+	<sub-flow name="get-inventory-records-sub-flow" doc:id="283e9174-1a40-4363-abf7-5411c03c35b6" >
 		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-start" doc:id="461b6768-ee6c-4407-8473-61427f769e79" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-start") ++ "---------------"]'/>
 		<ee:transform doc:name="prepare-get-inventory-request" doc:id="506a05d2-cc06-470d-a1c1-82091f2679a9" >
 			<ee:message >
@@ -40,7 +40,7 @@ payload map ((item, index) -> {
 		</ee:transform>
 		<json-logger:logger doc:name='log-get-inventory-data-sub-flow-end' doc:id="2aeb92aa-453a-4d86-9cf6-bac6ff7b4598" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-end") ++ "---------------"]'/>
 	</sub-flow>
-	<sub-flow name="get-product-by-id-sub-flow" doc:id="8a01c85f-d26f-4afb-8543-fa3ad7f0e773" >
+	<sub-flow name="get-inventory-record-sub-flow" doc:id="8a01c85f-d26f-4afb-8543-fa3ad7f0e773" >
 		<json-logger:logger doc:name="log-get-product-by-id-sub-flow-start" doc:id="bb10684e-c4c9-4fe2-9260-08f9c0867dc4" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-product-by-id-sub-flow-start") ++ "---------------"]' />
 		<ee:transform doc:name="prepare-get-inventory-by-id-request" doc:id="252a43a6-3027-463a-9875-d9bc6bd4639b" >
 			<ee:message >
@@ -74,7 +74,7 @@ output application/json
 		</ee:transform>
 		<json-logger:logger doc:name="log-get-product-by-id-sub-flow-end" doc:id="c2e2e87d-66ed-45c0-8940-18cb31ea7f41" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-product-by-id-sub-flow-end") ++ "---------------"]' />
 	</sub-flow>
-	<sub-flow name="post-product-record-sub-flow" doc:id="059a9fc4-6e20-43b2-9e23-2c0772106ba2" >
+	<sub-flow name="post-inventory-record-sub-flow" doc:id="059a9fc4-6e20-43b2-9e23-2c0772106ba2" >
 		<json-logger:logger doc:name="log-post-inventory-record-sub-flow-start" doc:id="5b11984c-1fd7-470d-879e-0fb162336c26" config-ref="json-logger-config" message='#["-------------" ++ upper("log-post-inventory-record-sub-flow-start") ++ "---------------"]' />
 		<ee:transform doc:name="prepare-post-inventory-request" doc:id="d34ea40b-2561-4810-be70-02b801741d7e" >
 			<ee:message >
@@ -123,7 +123,7 @@ output application/json
 		</ee:transform>
 		<json-logger:logger doc:name="log-post-inventory-record-sub-flow-end" doc:id="efc90247-c1ff-4246-b1e4-9b06b6619498" config-ref="json-logger-config" message='#["-------------" ++ upper("log-post-inventory-record-sub-flow-end") ++ "---------------"]' />
 	</sub-flow>
-	<sub-flow name="put-product-by-id-record-sub-flow" doc:id="bedc4e3d-64cf-4898-955e-97a0698d15fd" >
+	<sub-flow name="put-inventory-record-sub-flow" doc:id="bedc4e3d-64cf-4898-955e-97a0698d15fd" >
 		<json-logger:logger doc:name="log-put-product-by-id-record-sub-flow-start" doc:id="4da115e4-fd53-48b1-8c37-0f17cc03ae1d" config-ref="json-logger-config" message='#["-------------" ++ upper("log-put-product-by-id-record-sub-flow-start") ++ "---------------"]' />
 		<ee:transform doc:name="prepare-get-inventory-by-id-request" doc:id="9f858573-e242-47b9-8dbe-dd650e74e272" >
 			<ee:message >
@@ -190,7 +190,7 @@ output application/json
 		</ee:transform>
 		<json-logger:logger doc:name="log-put-product-by-id-record-sub-flow-end1" doc:id="82edfdb4-8695-4659-aa69-07a36a679573" config-ref="json-logger-config" message='#["-------------" ++ upper("log-put-product-by-id-record-sub-flow-end") ++ "---------------"]' />
 	</sub-flow>
-	<sub-flow name="delete-product-by-id-record-sub-flow" doc:id="36e91023-fa5e-4cbd-aeee-973fdba7478a" >
+	<sub-flow name="delete-inventory-record-sub-flow" doc:id="36e91023-fa5e-4cbd-aeee-973fdba7478a" >
 		<json-logger:logger doc:name="log-delete-product-by-id-record-sub-flow-start" doc:id="9df68877-f3df-4a5c-94a0-323ee921ddfd" config-ref="json-logger-config" message='#["-------------" ++ upper("log-delete-product-by-id-record-sub-flow-start") ++ "---------------"]' />
 		<ee:transform doc:name="prepare-get-inventory-by-id-request" doc:id="3e27b6d3-286b-4023-9014-a22ee9dea147" >
 			<ee:message >
@@ -427,7 +427,7 @@ payload map ((item, index) -> {
 		</ee:transform>
 		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-end" doc:id="844ee5e9-f48c-41df-b443-bc1c99c3d455" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-end") ++ "---------------"]' />
 	</sub-flow>
-	<sub-flow name="patch-transit-record-by-id-sub-flow" doc:id="755fdcec-70fe-4a1a-97d1-9d61673de69c" >
+	<sub-flow name="patch-transit-record-sub-flow" doc:id="755fdcec-70fe-4a1a-97d1-9d61673de69c" >
 		<json-logger:logger doc:name="log-get-inventory-data-sub-flow-start" doc:id="ec2e1b95-d25c-4c13-afaf-8e81358cac5b" config-ref="json-logger-config" message='#["-------------" ++ upper("log-get-inventory-data-sub-flow-start") ++ "---------------"]' />
 		<ee:transform doc:name="prepare-get-transit-by-id-request" doc:id="a461b72e-0425-4d9b-8730-e38e2e49a972" >
 			<ee:message >

@@ -10,7 +10,7 @@
 	<munit:config name="admin-prc-api-test-suite.xml" />
 	<munit:test name="admin-prc-api-test-suite-post:\api\v1\inventory:application\json:admin-prc-api-configTest" doc:id="1e5e252e-bd47-4f1d-ac78-a87439f038ca" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking post response" doc:id="49f13980-b89d-4d72-986c-8b5749374730" processor="http:request">
+			<munit-tools:mock-when doc:name="mocking-post-response" doc:id="49f13980-b89d-4d72-986c-8b5749374730" processor="http:request">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -32,7 +32,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-put:\api\v1\inventory\(productId):application\json:admin-prc-api-configTest" doc:id="02d5ccd2-37e0-491c-b4bb-9593c6c069e7" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking fetch response" doc:id="9c779593-1eb9-444d-83dc-cba5eb397ec6" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-fetch-response" doc:id="9c779593-1eb9-444d-83dc-cba5eb397ec6" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-inventory-record" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="058de7a3-eea5-40e6-ad19-8bb74161e02e" attributeName="doc:id" />
@@ -43,7 +43,7 @@
 					</munit-tools:variables>
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking update response" doc:id="94d0fb40-f2de-45b9-8805-ed4a7c07e448" processor="http:request">
+			<munit-tools:mock-when doc:name="mocking-update-response" doc:id="94d0fb40-f2de-45b9-8805-ed4a7c07e448" processor="http:request">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -66,7 +66,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-get-by-id:\api\v1\inventory:admin-prc-api-configTest" doc:id="c3afa45b-bbc5-4b67-a128-e15879487835" description="Test">
 		<munit:behavior>
-			<munit-tools:mock-when doc:name="Mocking update response" doc:id="16a61dd5-19a9-43b9-aa48-5ac14f0fdd83" processor="http:request" >
+			<munit-tools:mock-when doc:name="mocking-update-response" doc:id="16a61dd5-19a9-43b9-aa48-5ac14f0fdd83" processor="http:request" >
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -88,7 +88,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-get:\api\v1\inventory:admin-prc-api-configTest1" doc:id="81bfb313-f0ea-4b96-8a49-1b13608ab0e2" description="Test" >
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking update response" doc:id="1acb3b9c-7216-4837-9027-126737bd4ad5" processor="http:request" >
+			<munit-tools:mock-when doc:name="mocking-fetch-data" doc:id="1acb3b9c-7216-4837-9027-126737bd4ad5" processor="http:request" >
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -107,7 +107,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-delete:\api\v1\inventory\(productId):admin-prc-api-configTest" doc:id="44f4006d-ef9c-4a2f-9665-47e0951e13ba" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking fetch data" doc:id="566931d3-87f0-480a-829c-c9c71a365361" processor="flow-ref" >
+			<munit-tools:mock-when doc:name="mocking-fetch-data" doc:id="566931d3-87f0-480a-829c-c9c71a365361" processor="flow-ref" >
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-inventory-record" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="9d889530-1b14-4f98-959e-b19a54e96269" attributeName="doc:id" />
@@ -118,7 +118,7 @@
 					</munit-tools:variables>
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking delete response" doc:id="8bd502f2-f140-412f-924a-33eeadf2e124" processor="http:request" >
+			<munit-tools:mock-when doc:name="mocking-delete-response" doc:id="8bd502f2-f140-412f-924a-33eeadf2e124" processor="http:request" >
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -140,7 +140,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-post:\api\v1\transit:application\json:admin-prc-api-configTest" doc:id="80dff0d3-821b-4340-aade-3a54c2269bb7" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking fetch order data" doc:id="305c39a4-9dc1-4344-a099-d10de934b8bf" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-fetch-order-data" doc:id="305c39a4-9dc1-4344-a099-d10de934b8bf" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-order-details" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="f8f8de4f-5cee-43d6-99a0-617789516f16" attributeName="doc:id" />
@@ -151,7 +151,7 @@
 					</munit-tools:variables>
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking fetch customer data" doc:id="591e6580-1d27-444e-badc-542862d91100" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-fetch-customer-data" doc:id="591e6580-1d27-444e-badc-542862d91100" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-customer-details" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="1a8a5a32-72df-42a2-bd10-6d4ced046f2c" attributeName="doc:id" />
@@ -160,7 +160,7 @@
 					<munit-tools:payload value="#[output application/json --- readUrl('classpath://transits/post-transit-http-select-customer-response.dwl')]" mediaType="application/json" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking fetch deliverypartner data" doc:id="fc5c0a0b-5172-4df6-a9e4-abf5e924e1b0" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-fetch-deliverypartner-data" doc:id="fc5c0a0b-5172-4df6-a9e4-abf5e924e1b0" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-deliverypartner-details" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="cdfc1ee3-a683-4b7f-87d1-b29add54e51d" attributeName="doc:id" />
@@ -169,7 +169,7 @@
 					<munit-tools:payload value="#[output application/json --- readUrl('classpath://transits/post-transit-http-select-deliverypartner-response.dwl')]" mediaType="application/json" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking update transit response" doc:id="57e2938e-1f0b-4890-b256-e19b5d84a9a4" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-update-transit-response" doc:id="57e2938e-1f0b-4890-b256-e19b5d84a9a4" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="insert-transit-record-sub-flow" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="43d03f9a-3203-4c3d-a315-d40716f1374c" attributeName="doc:id" />
@@ -180,7 +180,7 @@
 					</munit-tools:variables>
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking update order response" doc:id="a6c546eb-2e1c-4315-a8d1-b0836e526685" processor="http:request" >
+			<munit-tools:mock-when doc:name="mocking-update-order-response" doc:id="a6c546eb-2e1c-4315-a8d1-b0836e526685" processor="http:request" >
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -202,7 +202,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-patch:\api\v1\transit\(transitId):application\json:admin-prc-api-configTest" doc:id="05f54de0-f809-4446-bd28-58e5fd631daf" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking fetch transit data" doc:id="82823e50-696b-4220-9850-17be8aea9295" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-fetch-transit-data" doc:id="82823e50-696b-4220-9850-17be8aea9295" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-transit-data" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="56a0b133-a04a-4cd2-9700-28fc9e13d320" attributeName="doc:id" />
@@ -213,7 +213,7 @@
 					</munit-tools:variables>
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking update transit response" doc:id="b5bc7349-f340-423e-95db-e40a7574749b" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-update-transit-response" doc:id="b5bc7349-f340-423e-95db-e40a7574749b" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="update-transit-data" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="9009b36b-0c7e-4be7-aa8f-8ac92e5f08c0" attributeName="doc:id" />
@@ -222,7 +222,7 @@
 					<munit-tools:payload value="#[output application/json --- readUrl('classpath://transits/put-transit-http-update-transit-response.dwl')]" mediaType="application/json" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking fetch order data" doc:id="3fdcbdf5-df33-41e2-b64d-2dadc497a257" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-fetch-order-data" doc:id="3fdcbdf5-df33-41e2-b64d-2dadc497a257" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-order-data" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="640f1261-aa8a-46f0-abff-3406972b842a" attributeName="doc:id" />
@@ -233,7 +233,7 @@
 					</munit-tools:variables>
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking update order status" doc:id="6ae61bf0-1857-4b26-8d91-9d19faf00c88" processor="http:request">
+			<munit-tools:mock-when doc:name="mocking-update-order-status" doc:id="6ae61bf0-1857-4b26-8d91-9d19faf00c88" processor="http:request">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />
@@ -242,7 +242,7 @@
 					<munit-tools:payload value="#[output application/json --- readUrl('classpath://transits/put-transit-http-update-order-response.dwl')]" mediaType="application/json" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking customer data" doc:id="673714d2-6351-4465-b5ef-069fc3365db3" processor="flow-ref">
+			<munit-tools:mock-when doc:name="mocking-customer-data" doc:id="673714d2-6351-4465-b5ef-069fc3365db3" processor="flow-ref">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="fetch-customer-details" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="ef5fe86b-403b-459e-b3a9-c46cd8d6cfcc" attributeName="doc:id" />
@@ -251,7 +251,7 @@
 					<munit-tools:payload value="#[output application/json --- readUrl('classpath://transits/put-transit-http-select-customer-response.dwl')]" mediaType="application/json" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
-			<munit-tools:mock-when doc:name="Mocking mail response" doc:id="6d5600be-fbc2-48d0-99a8-ab044cd0a83a" processor="http:request">
+			<munit-tools:mock-when doc:name="mocking-mail-response" doc:id="6d5600be-fbc2-48d0-99a8-ab044cd0a83a" processor="http:request">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-mail" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="93911923-5018-4528-8688-60f803217dec" attributeName="doc:id" />
@@ -274,7 +274,7 @@
 	</munit:test>
 	<munit:test name="admin-prc-api-test-suite-get:\api\v1\transit:admin-prc-api-configTest" doc:id="5d3adbd5-e42d-46c3-b2ec-9f8653c7d1c0" description="Test">
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mock when" doc:id="f7c578b8-6734-476a-942f-fd66de3f7a42" processor="http:request">
+			<munit-tools:mock-when doc:name="mocking-fetch-data" doc:id="f7c578b8-6734-476a-942f-fd66de3f7a42" processor="http:request">
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="request-to-salesforce" attributeName="doc:name" />
 					<munit-tools:with-attribute whereValue="a2034433-96b1-4353-a3aa-dd719b9c07b3" attributeName="doc:id" />

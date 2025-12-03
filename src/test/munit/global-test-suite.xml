@@ -11,7 +11,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 	<munit:config name="admin-prc-api-test-suite.xml" />
 	<munit:test name="admin-prc-api-test-suite-admin-prc-api-main-global-error-handler-test" doc:id="c3259eee-f3b5-4423-b6d9-9cee726c999d" description="Test" >
 		<munit:behavior >
-			<munit-tools:mock-when doc:name="Mocking Transform" doc:id="9923f53b-9c13-4207-8e60-4cdb556d5ce1" processor="apikit:router" >
+			<munit-tools:mock-when doc:name="mocking-transform" doc:id="9923f53b-9c13-4207-8e60-4cdb556d5ce1" processor="apikit:router" >
 				<munit-tools:with-attributes >
 					<munit-tools:with-attribute whereValue="admin-prc-api-config" attributeName="config-ref" />
 				</munit-tools:with-attributes>

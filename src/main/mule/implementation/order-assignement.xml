@@ -189,9 +189,9 @@ output application/json
 		<json-logger:logger doc:name="log-scheduler-order-assignment-dp-flow-end" doc:id="925eb3f3-24ea-4e5d-99dd-382087d54814" config-ref="json-logger-config" message='#["&#45;&#45;&#45;&#45;-" ++ upper("log-scheduler-order-assignment-dp-flow-end") ++ "&#45;&#45;&#45;&#45;-"&#93;'/>
 	</flow> [STUDIO] -->
 	<flow name="order-assignementFlow1" doc:id="571b8e13-7682-463c-a38f-445581643019" >
-		<scheduler doc:name="Scheduler" doc:id="ba2b2045-e9b3-44ae-8473-b751c96f164d" >
+		<scheduler doc:name="order-assignment-schedular" doc:id="ba2b2045-e9b3-44ae-8473-b751c96f164d" >
 			<scheduling-strategy >
-				<fixed-frequency frequency="1" timeUnit="DAYS"/>
+				<fixed-frequency frequency="${scheduler.order.frequency}" timeUnit="HOURS" startDelay="${scheduler.order.start-delay}"/>
 			</scheduling-strategy>
 		</scheduler>
 		<json-logger:logger doc:name="log-scheduler-order-assignment-dp-flow-start" doc:id="de68f3b5-97d2-47fc-8059-598ce0af54bb" config-ref="json-logger-config" message='#["----" ++ upper("log-scheduler-order-assignment-dp-flow-start") ++ "------"]' />
@@ -275,7 +275,7 @@ else
     )]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<choice doc:name="Choice" doc:id="2e708c1b-d68d-4b7e-a369-ca11e7f8a8b3" >
+		<choice doc:name="check-packaged-orders-and-active-dps" doc:id="2e708c1b-d68d-4b7e-a369-ca11e7f8a8b3" >
 			<when expression="#[!isEmpty(payload)]">
 				<parallel-foreach doc:name="Parallel For Each" doc:id="7153ff04-e49a-477c-b840-7e707ae25844">
 			<flow-ref doc:name="update-order-and-deliverypartner-status-sub-flow" doc:id="7d7a2c32-5dd8-466d-b1e3-de0db79c68d8" name="update-order-and-deliverypartner-status-sub-flow" />
@@ -299,7 +299,7 @@ output application/json
 				</json-logger:logger>
 			</otherwise>
 		</choice>
-		<ee:transform doc:name="convert-to-json" doc:id="752d4386-24e1-4dd8-9d3f-dd26894ed896" >
+		<ee:transform doc:name="convert-payload-to-json" doc:id="752d4386-24e1-4dd8-9d3f-dd26894ed896" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -314,7 +314,7 @@ output application/json
 		<json-logger:logger doc:name="log-scheduler-order-assignment-dp-flow-end" doc:id="c42ae172-5b6f-44d5-96e7-dae1b8b77e66" config-ref="json-logger-config" message='#["-----" ++ upper("log-scheduler-order-assignment-dp-flow-end") ++ "-----"]' tracePoint="END"/>
 	</flow>
 	<sub-flow name="update-order-and-deliverypartner-status-sub-flow" doc:id="9f1e7ab6-dbd4-40c9-bed4-bfd5acb909dd" >
-		<json-logger:logger doc:name="log-update-order-and-partner-status" doc:id="cd516ea4-a9fc-4903-9ed9-451cf71f50b4" config-ref="json-logger-config" message='#["-----" ++ upper("log-update-order-and-partner-status-flow-start") ++ "------"]'/>
+		<json-logger:logger doc:name="log-update-order-and-partner-status-sub-flow-start" doc:id="cd516ea4-a9fc-4903-9ed9-451cf71f50b4" config-ref="json-logger-config" message='#["-----" ++ upper("log-update-order-and-partner-status-sub-flow-start") ++ "------"]'/>
 		<ee:transform doc:name="prepare-put-partner-request" doc:id="f65fbf1d-0505-4c07-ae97-3ade7c0fdf77" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -415,6 +415,6 @@ output application/json
 			</ee:variables>
 		</ee:transform>
 		<flow-ref doc:name="send-mail-to-customer" doc:id="8f46f0e5-df32-4099-b43e-75fc04b78ba0" name="send-mail-to-customer-sub-flow" />
-		<json-logger:logger doc:name="log-update-order-and-partner-status-flow-end" doc:id="099e046d-3cef-46c4-982a-3d647cbde0da" config-ref="json-logger-config" message='#["-----" ++ upper("log-update-order-and-partner-status-flow-end") ++ "-----"]'/>
+		<json-logger:logger doc:name="log-update-order-and-partner-status-flow-end" doc:id="099e046d-3cef-46c4-982a-3d647cbde0da" config-ref="json-logger-config" message='#["-----" ++ upper("log-update-order-and-partner-status-sub-flow-end") ++ "-----"]'/>
 	</sub-flow>
 </mule>
